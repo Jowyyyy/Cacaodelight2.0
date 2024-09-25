@@ -11,7 +11,7 @@ http://www.tooplate.com/view/2111-pro-line
 body {
   font-family: "Open Sans", sans-serif;
   font-size: 17px;
-  background-color: #36231d;
+  background-color: #dad2d2;
   overflow-x: hidden;
   color: #313131;
   padding-top: 120px; /* Asegura que el contenido no se superponga con la barra de navegación fija */
@@ -205,7 +205,6 @@ margin-top: 0px;
   z-index: 1000;
   background-color: #f3ece6;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  /* transition: transform 0.3s ease-in-out; */
 }
 
 .tm-feature-icon {
@@ -214,10 +213,8 @@ margin-top: 0px;
 }
 
 .navbar-custom {
+  margin-left: 100px;
   background-color: #f3ece6; /* Marrón claro */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: top 0.3s;
-  will-change: transform, opacity;
 }
 .navbar-custom .navbar-nav .nav-link {
   color: #fff; /* Color de los enlaces */
@@ -235,11 +232,6 @@ margin-top: 0px;
   color: #313131;
 }
 
-#tmMainNav .nav-link.current,
-#tmMainNav .nav-link:hover {
-  color: #d2b48c;
-  background: #36231d;
-}
 
 .navbar-light .navbar-toggler {
   background-color: white;
@@ -404,7 +396,7 @@ margin-top: 0px;
 }
 
 .tm-company-about-text {
-  color: white;
+  color: black;
   padding: 35px;
 }
 
@@ -508,7 +500,7 @@ figure {
 }
 
 .tm-contact-figcaption {
-  color: white;
+  color: black;
   margin-top: 27px;
   max-width: 600px;
 }
@@ -520,7 +512,6 @@ figure {
 
 .tm-contact-header {
   margin: auto;
-  color:white;
   margin-bottom: 40px;
 }
 
@@ -781,11 +772,7 @@ figure {
   background-color:  #f3ece6;
 }
 
-.row-products {
-  background-color: #f3ece6;
-  margin-top: 100px;
-  margin-bottom: -20px; /* Reducir el margen inferior para reducir el espacio entre las tarjetas */
-}
+ 
 
 .col-15 {
   background-color: #f3ece6;
@@ -940,7 +927,7 @@ figure {
 
 /* Estilos para el contenedor del carrusel */
 .carousel-container {
-  width: 1550px;
+  width: 100%;
   height: 1000px;
   overflow: hidden;
   position: relative;
@@ -1015,7 +1002,7 @@ figure {
 .nav-link.tm-no-border-right,
 .nav-link.tm-nav-link-border-right.active {
  
-  background-color: #f3ece6;
+  background-color: #dad2d2;
 }
 
 .parraf-intro {
@@ -1023,10 +1010,7 @@ figure {
 }
 
 
-.tm-text-blue {
-  fontWeight: 'bold';
-  color: #000000;
-}
+
 
 
 .tm-activity-block {
@@ -1059,24 +1043,76 @@ figure {
 }
 
 
-
-
-
-
-.tm-activity-block-text {
-  padding-left: 24px;
-  padding-right: 24px;
+/* Contenedor de productos */
+.row-products {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Asegura que los productos se centren */
+  gap: 20px; /* Espacio entre las tarjetas de producto */
+  padding: 40px 20px;
+  background-color: #f8f8f8; /* Fondo claro */
 }
 
+/* Tarjetas de producto */
 
-.tm-activity-block-text h3 {
+
+.col-13:hover {
+  transform: translateY(-5px); /* Efecto hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Sombra más intensa */
+}
+
+/* Imagen del producto */
+.col-13 img {
+  width: 100%;
+  height: 200px; /* Fija la altura de la imagen */
+  object-fit: cover; /* Asegura que las imágenes mantengan proporción */
+  border-radius: 12px 12px 0 0; /* Bordes redondeados en la parte superior */
+  margin-bottom: 15px;
+}
+
+/* Título del producto */
+.col-13 h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+/* Precio del producto */
+.col-13 .price {
+  font-size: 1.2rem;
+  color: #ff4a4a;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+/* Descripción del producto */
+.col-13 p {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
   margin-bottom: 20px;
 }
 
-
-.tm-activity-img-container {
-  width: 180px;
-  height: 180px;
- 
+/* Botón de añadir al carrito */
+.btn-31 {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
+.btn-31:hover {
+  background-color: #ff4a4a; /* Cambia el color a rojo en hover */
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  .col-13 {
+    width: 100%; /* Las tarjetas ocupan el ancho completo en pantallas pequeñas */
+  }
+}

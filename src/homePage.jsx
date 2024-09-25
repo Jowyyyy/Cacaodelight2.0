@@ -1,13 +1,16 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSpring, animated } from 'react-spring';
-import './css/all.min.css'; // Importa tu archivo CSS aquí
-import './css/bootstrap.min.css'; // Importa tu archivo CSS aquí
-import './css/tooplate-style.css'; // Importa tu archivo CSS aquí
-import translations from './Translations'; // Importa el objeto de traducciones
+import { useInView } from 'react-intersection-observer';
+import translations from './Translations';
 import { db } from './components/login/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import ImageFetcher from "./components/ImageFetcher";
+import { addToCart } from '../src/components/cesta/CartFunctions';
+import './css/all.min.css';
+import './css/bootstrap.min.css';
+import './css/tooplate-style.css';
+import styles from './Product.module.css';
 
 function CollapsibleCard({ title, content }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,27 +34,34 @@ function CollapsibleCard({ title, content }) {
   );
 }
 
-function homePage() {
-  const [language, setLanguage] = useState('ca'); // Estado para controlar el idioma seleccionado
-  const [prevScrollPos, setPrevScrollPos] = useState(window.pageYOffset);
-  const [visible, setVisible] = useState(true);
 
+function homePage() {
+  const [prevScrollPos, setPrevScrollPos] = useState(window.pageYOffset);
+  const [language, setLanguage] = useState('es');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const homePage = () => {
+    return (
+      <div>
+        <h1>Bienvenido a la Página de Cacao</h1>
+        <ImageFetcher /> 
+      </div>
+    );
+  };
+
   const fetchProducts = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'productos')); // Asegúrate de que tienes una colección llamada 'productos' en Firestore
-      const productList = querySnapshot.docs.map((doc) => ({
+      const querySnapshot = await getDocs(collection(db, 'productos'));
+      const productList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
       setProducts(productList);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching products:', error);
-      setLoading(false);
+      console.error('Error al obtener productos:', error);
     }
   };
 
@@ -59,52 +69,23 @@ function homePage() {
     fetchProducts();
   }, []);
 
-  const handleProductClick = (product) => {
-    navigate(`/product/${product.id}`, { state: { product } });
-  };
+  const switchToSpanish = () => setLanguage('es');
+  const switchToEnglish = () => setLanguage('en');
+  const switchToCatalan = () => setLanguage('ca');
 
-  if (loading) {
-    return <div>Cargando productos...</div>;
-  }
-
-  return (
-    <div className="product-list">
-      <h1>Productos de Cacao</h1>
-      {products.map((product) => (
-        <div key={product.id} className="product-item" onClick={() => handleProductClick(product)}>
-          <img src={product.image} alt={product.name} className="product-image" />
-          <h3>{product.name}</h3>
-          <p>{product.description}</p>
-          <p>Precio: ${product.price}</p>
-        </div>
-      ))}
-    </div>
-  );
-
-
-  // Función para cambiar el idioma a español
-  const switchToSpanish = () => {
-    setLanguage('es');
-  };
-
-  // Función para cambiar el idioma a inglés
-  const switchToEnglish = () => {
-    setLanguage('en');
-  };
-
-  // Función para cambiar el idioma a catalán
-  const switchToCatalan = () => {
-    setLanguage('ca');
-  };
-
-  const getContentByLanguage = () => {
-    return translations[language];
-  };
-
-  const { title, logIn, introduction, sustainability, contact, fbPage, queEsTitle, queEsText, passionText, conoceTitle, conoceText, educationText, title3, title4, title5, content1, content2, content3, infocontact } = getContentByLanguage();
-
+  const {
+    title,
+    logIn,
+    introduction,
+    products: productsText,
+    description,
+    contact,
+    fbPage,
+    sustainability,sostenibilidad,p1,vision,mision,p2,p3,p4,p5,contactAnimation,infocontact 
+  } = translations[language];
   const [featuresRef, featuresInView] = useInView({ threshold: 0.5 });
   const [companyRef, companyInView] = useInView({ threshold: 0.5 });
+  const [activitiesRef, activitiesInView] = useInView({ threshold: 0.5 });
   const [showScrollButton, setShowScrollButton] = useState(false);
   const slideAnimation = useSpring({
     from: { transform: 'translateX(-100%)', opacity: 0 },
@@ -124,11 +105,10 @@ function homePage() {
       setShowScrollButton(false);
     }
   };
-
-  const [activeTab, setActiveTab] = useState('vision'); // Estado para controlar la pestaña activa
+  const [activeTab, setActiveTab] = useState('vision'); 
 
   const handleTabClick = (tabId) => {
-    setActiveTab(tabId); // Cambia el estado al ID de la pestaña seleccionada
+    setActiveTab(tabId); 
   };
 
   const scrollToSection = (id) => {
@@ -143,17 +123,14 @@ function homePage() {
     });
   };
 
-  const homeAnimation = useSpring({
+  const bannerAnimation = useSpring({
     opacity: 1,
     from: { opacity: 0 },
   });
 
-  const contactAnimation = useSpring({
-    opacity: 1,
-    from: { opacity: 0 },
-  });
 
-  // Estado y efecto para controlar el carrusel
+  const homeAnimation = useSpring({ opacity: 1, from: { opacity: 0 } });
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const images = [
     "src/img/agricultorhome1.jpg",
@@ -162,93 +139,87 @@ function homePage() {
     "src/img/dona1.jpg"
   ];
 
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 3000); 
+
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
     <>
-      {/* page header */}
-      <animated.div style={homeAnimation}>
+      <div style={homeAnimation}>
         <div className="container" id="home">
           <div className="col-12 text-center">
             <div className="tm-page-header">
-              <img src="src\img\logo.webp" alt="logo" className="logo" />
+              <img src="src/img/logo.webp" alt="logo" className="logo" />
               <h1 className="d-inline-block text-uppercase">{title}</h1>
             </div>
           </div>
         </div>
-        <div className='botontrad'>
-          <button className='btn-31' onClick={switchToSpanish}>
-            <span className='text-container'>
-              <span className='text'>Español</span>
-            </span>
-          </button>
-          <button className='btn-31' onClick={switchToEnglish}>
-            <span className='text-container'>
-              <span className='text'>Inglés</span>
-            </span>
-          </button>
-          <button className='btn-31' onClick={switchToCatalan}>
-            <span className='text-container'>
-              <span className='text'>Catalán</span>
-            </span>
-          </button>
-        </div>
-      </animated.div>
-
-      {/* navbar */}
-      <div className="tm-nav-section">
-        <div className="container">
-          <div className="row">
-            <div className="col-13">
-              <nav className="navbar navbar-expand-md navbar-light navbar-custom">
-                <button
-                  className="navbar-toggler"
-                  type="button"
-                  data-toggle="collapse"
-                  data-target="#tmMainNav"
-                  aria-controls="tmMainNav"
-                  aria-expanded="false"
-                  aria-label="Toggle navigation"
-                >
-                  <span className="navbar-toggler-icon" />
-                </button>
-                <div className="collapse navbar-collapse justify-content-center" id="tmMainNav">
-                  <ul className="navbar-nav">
-                    <li className="nav-item active">
-                      <a className="nav-link" onClick={() => scrollToSection('home')}>
-                        {logIn} <span className="sr-only">(current)</span>
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a className="nav-link" onClick={() => scrollToSection('features')}>
-                        {introduction}
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a className="nav-link" onClick={() => scrollToSection('company')}>
-                        {sustainability}
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a className="nav-link" onClick={() => scrollToSection('contact')}>
-                        {contact}
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a
-                        className="nav-link external"
-                        href="https://www.facebook.com/templatemo"
-                      >
-                        {fbPage}
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </nav>
-            </div>
-          </div>
+        <div className="botontrad">
+          <button className="btn-31" onClick={switchToSpanish}>Español</button>
+          <button className="btn-31" onClick={switchToEnglish}>Inglés</button>
+          <button className="btn-31" onClick={switchToCatalan}>Catalán</button>
         </div>
       </div>
 
-      <div className="carousel-container">
+       {/* navbar */}
+       <div className="tm-nav-section">
+  <div className="container">
+    <div className="row">
+      <div className="col-13">
+        <nav className="navbar navbar-expand-md navbar-light navbar-custom">
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-toggle="collapse" data-target="#tmMainNav"
+            aria-controls="tmMainNav"
+            aria-expanded="false" aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon" />
+          </button>
+          <div className="collapse navbar-collapse justify-content-center" id="tmMainNav">
+            <ul className="navbar-nav">
+              <li className="nav-item active">
+                <a className="nav-link" onClick={() => scrollToSection('home')}>
+                  {logIn} <span className="sr-only">(current)</span>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" onClick={() => scrollToSection('product')}>
+                  {introduction}
+                </a>
+              </li>
+
+              <li className="nav-item">
+                <a className="nav-link" onClick={() => scrollToSection('company')}>
+                  {sustainability}
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" onClick={() => scrollToSection('contact')}>
+                  {contact}
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  className="nav-link external"
+                  href="https://www.facebook.com/templatemo"
+                >
+                  {fbPage}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+<div className="carousel-container">
         <div className="slider-frame" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
           <ul>
             {images.map((image, index) => (
@@ -258,90 +229,189 @@ function homePage() {
             ))}
           </ul>
         </div>
+
+        {/* productos */}
       </div>
-
-      {/* Features */}
-      <animated.div ref={featuresRef} className="container tm-features-section" id="features" style={featuresInView ? slideAnimation : {}}>
-        <div className="container tm-features-section" id="features">
-          <div className="row tm-features-row">
-            <section className="col-md-6 col-sm-12 tm-feature-block">
-              <header className="tm-feature-header">
-                <i className="fas fa-5x fa-anchor tm-feature-icon" />
-                <h3 className="tm-feature-h">{queEsTitle}</h3>
-              </header>
-              <p>{queEsText}</p>
-              <p>{passionText}</p>
-            </section>
-            <section className="col-md-6 col-sm-12 tm-feature-block">
-              <header className="tm-feature-header">
-                <i className="fas fa-5x fa-atom tm-feature-icon" />
-                <h3 className="tm-feature-h">{conoceTitle}</h3>
-              </header>
-              <p>{conoceText}</p>
-              <p className='segundo-texto-info'>{educationText}</p>
-            </section>
-          </div>
-        </div>
-      </animated.div>
-
-      {/* Collapsible cards */}
-      <section className="container" style={{ backgroundColor: '#f3ece6' }}>
-        <div className="row-products">
-          <div className="col-15">
-            <CollapsibleCard title={title3} content={content1} />
-            <CollapsibleCard title={title4} content={content2} />
-            <CollapsibleCard title={title5} content={content3} />
-          </div>
-        </div>
-      </section>
-
-      {/* Contact */}
-      <animated.div style={contactAnimation}>
-        <section className="container tm-contact-section" id="contact">
-          <div className="row">
-            <div className="col-xl-5 col-lg-6 col-md-12 tm-contact-left">
-              <div className="tm-contact-form-container ml-auto mr-0">
-                <header>
-                  <h2 className="tm-contact-header">Contacte</h2>
-                </header>
-                <form action="/enviar-correo" className="tm-contact-form" method="POST">
-                  <div className="form-group">
-                    <input type="text" id="contact_name" name="user_name" className="form-control" placeholder="Nom" required />
-                  </div>
-                  <div className="form-group">
-                    <input type="email" id="contact_email" name="user_email" className="form-control" placeholder="Email" required />
-                  </div>
-                  <div className="form-group">
-                    <textarea rows={5} id="contact_message" name="message" className="form-control" placeholder="Missatge" required defaultValue={""} />
-                  </div>
-                  <div className="tm-text-right">
-                    <button type="submit" className="btn tm-btn tm-btn-big">Envia</button>
-                  </div>
-                </form>
+      <div className="container" id='product'>
+      <div className={styles.productHeader}>
+        <h2 className={styles.sectionTitle}>Nuestros productos de cacao</h2>
+        <p className={styles.sectionDescription}>
+          Descubre nuestros productos hechos con cacao de la mejor calidad, ideales para tus recetas o cuidados personales.
+        </p>
+      </div>
+      <div className="row product-list" style={{ position: 'relative' }}>
+        {loading ? (
+          <p>Cargando productos...</p>
+        ) : products.length === 0 ? (
+          <p>No hay productos disponibles</p>
+        ) : (
+          products.map((product) => (
+            <div key={product.id} className={styles.productCard}>
+              <div className={styles.tmActivityImgContainer}>
+                <img src={product.image} alt={product.name} className={styles.tmActivityImg} />
+              </div>
+              <div className={styles.tmActivityBlockText}>
+                <h3 className={styles.tmTextBlue}>{product.name}</h3>
+                <p>{product.description}</p>
+                <p>Precio: ${product.price}</p>
+                <button className={styles.addToCartBtn} onClick={() => addToCart(product)}>
+                  Añadir al carrito
+                </button>
               </div>
             </div>
-            <div className="col-xl-7 col-lg-6 col-md-12 tm-contact-right">
-              <div className="tm-contact-figure-block">
-                <figure className="d-inline-block">
-                  <img src="SRC/img/img-06.jpg" alt="Image" className="img-fluid" />
-                  <figcaption className="tm-contact-figcaption">
-                    {infocontact}
-                  </figcaption>
-                </figure>
+          ))
+        )}
+
+        <button className={styles.cartButton} onClick={() => navigate('/cart')}> Ir a la cesta
+        </button>
+        </div>
+      <div className="container tm-features-section" id="features">
+
+          <section ref={companyRef} className="container tm-company-section" id="company" style={companyInView ? slideAnimation : {}}>
+          <div className="row">
+            <div className="col-xl-9 col-lg-8 col-md-12 tm-company-left">
+              <div className="tm-company-about">
+                <div className="tm-company-img-container">
+                  <img src="src/img/img-05.jpg" alt="Image" />
+                </div>
+                <div className="tm-company-about-text">
+                  <header>
+                    <h2 className="tm-company-about-header">{sostenibilidad}</h2>
+                  </header>
+                  <p>
+                    {p1}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-xl-9 col-lg-4 col-md-12 tm-company-right ml-lg-auto mr-lg-0">
+              <div className="tm-company-right-inner">
+                <ul className="nav nav-tabs" id="tmCompanyTab" role="tablist">
+                  <li className="nav-item">
+                    <a
+                      className={`nav-link tm-nav-link-border-right ${activeTab === 'vision' ? 'active' : ''}`}
+                      onClick={() => handleTabClick('vision')}
+                      role="tab"
+                      aria-controls="vision"
+                      aria-selected={activeTab === 'vision' ? 'true' : 'false'}
+                    >
+                      {vision}
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a
+                      className={`nav-link tm-no-border-right ${activeTab === 'mission' ? 'active' : ''}`}
+                      onClick={() => handleTabClick('mission')}
+                      role="tab"
+                      aria-controls="mission"
+                      aria-selected={activeTab === 'mission' ? 'true' : 'false'}
+                    >
+                      {mision}
+                    </a>
+                  </li>
+                </ul>
+                <div className="tab-content" id="tmTabContent">
+                  <div
+                    className={`tab-pane fade ${activeTab === 'vision' ? 'show active' : ''}`}
+                    id="vision"
+                    role="tabpanel"
+                    aria-labelledby="vision-tab"
+                  >
+                    {p2}
+
+                    {p3}
+                  </div>
+                  <div
+                    className={`tab-pane fade ${activeTab === 'mission' ? 'show active' : ''}`}
+                    id="mission"
+                    role="tabpanel"
+                    aria-labelledby="mission-tab"
+                  >
+                    {p4}
+                    {p5}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
-      </animated.div>
 
+      </div>
+
+
+      </div>
+
+      
+      {/* Contact */}
+      <div style={contactAnimation}>
+  <section className="container tm-contact-section" id="contact">
+    <div className="row">
+      <div className="col-xl-5 col-lg-6 col-md-12 tm-contact-left">
+        <div className="tm-contact-form-container ml-auto mr-0">
+          <header>
+            <h2 className="tm-contact-header">Contacte</h2>
+          </header>
+          <form action="/enviar-correo" className="tm-contact-form" method="POST">
+            <div className="form-group">
+              <input
+                type="text"
+                id="contact_name"
+                name="user_name"
+                className="form-control"
+                placeholder="Nom"
+                required=""
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="email"
+                id="contact_email"
+                name="user_email"
+                className="form-control"
+                placeholder="Email"
+                required=""
+              />
+            </div>
+            <div className="form-group">
+              <textarea
+                rows={5}
+                id="contact_message"
+                name="message"
+                className="form-control"
+                placeholder="Missatge"
+                required=""
+                defaultValue={""}
+              />
+            </div>
+            <div className="tm-text-right">
+              <button type="submit" className="btn tm-btn tm-btn-big">
+                Envia
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div className="col-xl-7 col-lg-6 col-md-12 tm-contact-right">
+        <div className="tm-contact-figure-block">
+          <figure className="d-inline-block">
+            <img src="SRC/img/img-06.jpg" alt="Image" className="img-fluid" />
+            <figcaption className="tm-contact-figcaption">
+              {infocontact}
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
       <footer className="container tm-footer">
         <div className="row tm-footer-row">
           <p className="col-md-10 col-sm-12 mb-0">
-            Copyright © 2013 CacaoDelight - Design: <a>+34 123456789</a>
-          </p>
+            Copyright © 2013 CacaoDelight - Design:
+            <a>+34 123456789</a>
+          </p>  
         </div>
       </footer>
-
       {showScrollButton && (
         <div className="scroll-to-top">
           <button className="btn btn-primary" onClick={scrollToTop}>

@@ -4,9 +4,14 @@ import { db, auth } from '../src/components/login/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import './components/productos/productos.css';
 const ProductPage = () => {
-  const { state } = useLocation();
-  const { product } = state;
+  const location = useLocation();
+  const { state } = location || {}; 
+    const { product } = state;
   const [message, setMessage] = useState('');
+
+  if (!product) {
+    return <div>No se encontró el producto.</div>;
+  }
 
   const addToCart = async () => {
     const user = auth.currentUser;
@@ -24,7 +29,8 @@ const ProductPage = () => {
   return (
     <div>
       <h1>{product.name}</h1>
-      <p>Precio: {product.price} USD</p>
+      <p>{product.description}</p>
+      <p>Precio: {product.price} €</p>
       <button onClick={addToCart}>Añadir al carrito</button>
       {message && <p>{message}</p>}
     </div>

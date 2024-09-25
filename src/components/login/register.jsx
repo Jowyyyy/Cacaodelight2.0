@@ -1,48 +1,59 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Importa useNavigate
-import { auth, db } from "./firebase"; // Asegúrate de que la ruta sea correcta
+import { useNavigate } from "react-router-dom";
+import { auth, db, storage } from "./firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import styles from './register.module.css'; 
 const Register = () => {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [error, setError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const navigate = useNavigate(); // Inicializa useNavigate
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsUploading(true);
 
     try {
-      // Crear usuario con Firebase Authentication
       const result = await createUserWithEmailAndPassword(auth, email, password);
+      let avatarURL = null;
 
-      // Actualizar perfil del usuario (nombre de visualización)
-      await updateProfile(result.user, { displayName });
+      if (avatar) {
+        const storageRef = ref(storage, `avatars/${result.user.uid}`);
+        const uploadTask = await uploadBytesResumable(storageRef, avatar);
+        avatarURL = await getDownloadURL(uploadTask.ref);
+      }
 
-      // Subir datos adicionales a Firestore
+      await updateProfile(result.user, { displayName, photoURL: avatarURL });
       await setDoc(doc(db, "users", result.user.uid), {
         uid: result.user.uid,
         displayName,
         email,
-        avatarURL: avatar ? URL.createObjectURL(avatar) : null, // Puedes almacenar la URL del avatar o subirla a Firebase Storage
+        avatarURL,
       });
 
-      // Redirigir al inicio de sesión después de un registro exitoso
-      navigate('/login');
+      setIsUploading(false);
+      navigate("/login");
     } catch (error) {
       setError(error.message);
+      setIsUploading(false);
     }
   };
 
   return (
-    <div className="formContainer">
-      <div className="formWrapper">
-        <span className="logo">Your Logo Name</span>
-        <span className="title">Register</span>
+    <div className={styles.registerContainer}> 
+    <header className={styles.header}>
+        <img src="src/img/logo.webp" alt="Logoreg" />
+        <h1>Cacao Delight</h1>
+      </header>
+      <div className={styles.formWrapper}>
+        <span className={styles.logo}>Únete a nosotros!!</span>
         <form onSubmit={handleRegister}>
           <input
             type="text"
@@ -66,10 +77,6 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <label htmlFor="file">
-            <img src="https://cdn-icons-png.flaticon.com/128/6632/6632582.png" alt="Avatar" />
-            <span>Add Avatar</span>
-          </label>
           <input
             style={{ display: "none" }}
             type="file"
@@ -77,16 +84,18 @@ const Register = () => {
             accept=".jpg, .png"
             onChange={(e) => setAvatar(e.target.files[0])}
           />
-          <button type="submit">Sign up</button>
-          {error && <p>{error}</p>}
+          <button className="botonreg" type="submit" disabled={isUploading}>
+            {isUploading ? "Uploading..." : "Registrar"}
+          </button>
+          {error && <p className={styles.error}>{error}</p>}
         </form>
         <p>
-          You do have an account? 
-          <span 
+          ¿Ya tienes cuenta?{" "}
+          <span
             style={{ cursor: "pointer", color: "blue" }}
-            onClick={() => navigate('/login')} // Redirige al login
+            onClick={() => navigate("/login")}
           >
-            Login
+            Iniciar sesión
           </span>
         </p>
       </div>

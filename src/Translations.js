@@ -1,8 +1,8 @@
 const translations = {
   en: {
     title: "CacaoDelight",
-    logIn: "Log in",
-    introduction: "Introduction",
+    logIn: "Start",
+    introduction: "Products",
     products: "Products",
     sustainability: "Sustainability",
     contact: "Contact",
@@ -60,8 +60,8 @@ const translations = {
   },
   es: {
     title: 'CacaoDelight',
-          logIn: 'Iniciar sesión',
-          introduction: 'Introducción',
+          logIn: 'Inicio',
+          introduction: 'Productos',
           products: 'Productos',
           sustainability: 'Sostenibilidad',
           contact: 'Contacto',
@@ -112,8 +112,8 @@ const translations = {
   },
   ca: {
     title: "CacaoDelight",
-    logIn: "Inicia sessió",
-    introduction: "Introducció",
+    logIn: "Inici",
+    introduction: "Productes",
     products: "Productes",
     sustainability: "Sostenibilitat",
     contact: "Contacte",

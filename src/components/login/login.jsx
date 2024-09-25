@@ -1,64 +1,60 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from './firebase'; // Ajusta la ruta según tu estructura
+import { auth } from "./firebase";
+import styles from './login.module.css';
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // Inicializa useNavigate
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
-      // Iniciar sesión con Firebase Authentication
       await signInWithEmailAndPassword(auth, email, password);
-      
-      // Redirigir a la página de inicio (HomePage) después del login exitoso
-      navigate('/homePage'); // Ajusta la ruta a donde quieras redirigir
+      navigate('/homePage');
     } catch (error) {
       setError(error.message);
     }
   };
 
   return (
-    <div className="formContainer">
-      <div className="formWrapper">
-        <span className='logo'>Your Logo Name</span>
-        <span className='title'>Login</span>
+    <div className={styles.loginContainer}> 
+    <header className={styles.header}>
+        <img src="src/img/logo.webp" className= "img" alt="Logolog" />
+        <h1>Cacao Delight</h1>
+      </header>
+      <div className={styles.formWrapper}>
+        <span className={styles.logo}>Bienvenido!!</span>
         <form onSubmit={handleLogin}>
-          <input 
-            type="email" 
-            placeholder='Email' 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            autoFocus 
-            required 
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
-          <input 
-            type="password" 
-            placeholder='Password' 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
           />
-          <button type="submit">Log in</button>
-          {error && <p>{error}</p>}
+          <button className='botonlog'type="submit">Inicia sesión</button>
+          {error && <p className={styles.error}>{error}</p>}
         </form>
         <p>
-          You don't have an account? 
-          <span 
-            style={{ cursor: "pointer", color: "blue" }} 
-            onClick={() => navigate('/signup')} // Redirige al formulario de registro
-          >
+          No tienes cuenta? 
+          <span style={{ cursor: "pointer", color: "blue" }} onClick={() => navigate('/signup')}>
             Register
           </span>
         </p>
       </div>
     </div>
   );
-}
+};
 
 export default Login;
